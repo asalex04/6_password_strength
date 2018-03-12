@@ -1,18 +1,15 @@
 import re
+import sys
 from getpass import getpass
 
 
 def get_blacklist_file(file_path):
-    if not os.path.exists(blacklist):
-        return 0
     with open(file_path) as blacklist:
-        return blacklist.read()
+        return blacklist.read().split('\n')
 
 
-def check_blacklist(password):
-    if password in blacklist:
-        return -3
-    return 0
+def check_blacklist(blacklist, password):
+    return password in blacklist
 
 
 def check_len_pass(password):
@@ -41,28 +38,37 @@ def check_special_char(password):
     return 0
 
 
-def check_repeat(password):
-    if(max(password.count(symbol) for symbol in password)) < 3:
-        return 2
-    return 0
+def check_not_phone_namber(password):
+    if re.search(r'[7-8]\d{10}', password):
+        return 0
+    return 1
+
+
+def check_not_date(password):
+    if re.search(r'\d{1,2}[-.]\d{1,2}[-.]\d{2,4}', password):
+        return 0
+    return 1
 
 
 def get_password_strength(password):
-    ball = sum([check_blacklist(password),
-               check_len_pass(password),
-               check_low_and_upp(password),
-               check_dig(password),
-               check_special_char(password),
-               check_repeat(password)
-               ])
-    return ball
+    if check_blacklist(blacklisted_words, password):
+        return '0   "{}"-password from blacklist'.format(password)
+    else:
+        ball = sum([
+            check_len_pass(password),
+            check_low_and_upp(password),
+            check_dig(password),
+            check_special_char(password),
+            check_not_phone_namber(password),
+            check_not_date(password)
+        ])
+        return ball
 
 
 if __name__ == '__main__':
     try:
-        blacklist = input("Enter filepath to the blacklist: \n")
+        blacklisted_words = get_blacklist_file(sys.argv[1])
         password = getpass('Enter you password')
-        print('password complexity: {}'.format(get_password_strength(password)))
-    except (ValueError, FileNotFoundError):
-        exit('Not found password')
-
+        print('password strength: {}'.format(get_password_strength(password)))
+    except IndexError:
+        exit('Not found blacklist')
