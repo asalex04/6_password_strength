@@ -1,9 +1,7 @@
 
 # Password Strength Calculator
 
-Simple password checker. The program checks the password by several criteria and calculates your pa
-
-ssword's strength from 1 to 10. You can use bad password from example (blacklist.txt) or take even more [here:](https://github.com/danielmiessler/SecLists/tree/master/Passwords)
+Simple password checker. The program checks the password by several criteria and calculates your password's strength from 1 to 10. You can use bad password from example (blacklist.txt) or take even more [here:](https://github.com/danielmiessler/SecLists/tree/master/Passwords)
 
 
 
