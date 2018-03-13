@@ -8,61 +8,53 @@ def get_blacklist_file(file_path):
         return blacklist.read().split('\n')
 
 
-def check_blacklist(blacklist, password):
+def has_blacklist(blacklist, password):
     return password in blacklist
 
 
-def check_len_pass(password):
-    if len(password) >= 12:
+def has_len_pass(password):
+    min_len_pass = 6
+    max_len_pass = 12
+    if len(password) >= max_len_pass:
         return 2
-    elif len(password) < 6:
+    elif len(password) < min_len_pass:
         return 0
     return 1
 
 
-def check_low_and_upp(password):
-    if re.search('[A-ZА-Я]', password) and re.search('[a-zа-я]', password):
-        return 2
-    return 0
+def has_low_and_upp(password):
+    return 2 * bool(re.search('[A-ZА-Я]', password) and re.search('[a-zа-я]', password))
 
 
-def check_dig(password):
-    if re.search('\d+', password):
-        return 2
-    return 0
+def has_dig(password):
+    return 2 * bool(re.search('\d+', password))
 
 
-def check_special_char(password):
-    if re.search('\W', password):
-        return 2
-    return 0
+def has_special_char(password):
+    return 2 * bool(re.search('\W', password))
 
 
-def check_not_phone_namber(password):
-    if re.search(r'[7-8]\d{10}', password):
-        return 0
-    return 1
+def has_not_phone_namber(password):
+     return not bool(re.search(r'[7-8]\d{10}', password))
 
 
-def check_not_date(password):
-    if re.search(r'\d{1,2}[-.]\d{1,2}[-.]\d{2,4}', password):
-        return 0
-    return 1
+def has_not_date(password):
+    return not bool(re.search(r'\d{1,2}[-.]\d{1,2}[-.]\d{2,4}', password))
 
 
 def get_password_strength(password):
-    if check_blacklist(blacklisted_words, password):
-        return '0   "{}"-password from blacklist'.format(password)
+    if has_blacklist(blacklisted_words, password):
+        return '"{}"-password from blacklist'.format(password)
     else:
-        ball = sum([
-            check_len_pass(password),
-            check_low_and_upp(password),
-            check_dig(password),
-            check_special_char(password),
-            check_not_phone_namber(password),
-            check_not_date(password)
+        score = sum([
+            has_len_pass(password),
+            has_low_and_upp(password),
+            has_dig(password),
+            has_special_char(password),
+            has_not_phone_namber(password),
+            has_not_date(password)
         ])
-        return ball
+        return score
 
 
 if __name__ == '__main__':
