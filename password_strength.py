@@ -8,8 +8,8 @@ def get_blacklist_file(file_path):
         return blacklist.read().split('\n')
 
 
-def has_blacklist(blacklist, password):
-    return password in blacklist
+def is_in_blacklist(blacklisted_words, password):
+    return password in blacklisted_words
 
 
 def has_len_pass(password):
@@ -22,20 +22,21 @@ def has_len_pass(password):
     return 1
 
 
-def has_low_and_upp(password):
-    return 2 * bool(re.search('[A-ZА-Я]', password) and re.search('[a-zа-я]', password))
+def has_lower_and_upper(password):
+    return 2*bool(re.search('[A-ZА-Я]', password) and
+                  re.search('[a-zа-я]', password))
 
 
-def has_dig(password):
-    return 2 * bool(re.search('\d+', password))
+def has_digital(password):
+    return 2*bool(re.search('\d+', password))
 
 
 def has_special_char(password):
-    return 2 * bool(re.search('\W', password))
+    return 2*bool(re.search('\W', password))
 
 
 def has_not_phone_namber(password):
-     return not bool(re.search(r'[7-8]\d{10}', password))
+    return not bool(re.search(r'[7-8]\d{10}', password))
 
 
 def has_not_date(password):
@@ -43,24 +44,24 @@ def has_not_date(password):
 
 
 def get_password_strength(password):
-    if has_blacklist(blacklisted_words, password):
-        return '"{}"-password from blacklist'.format(password)
-    else:
-        score = sum([
-            has_len_pass(password),
-            has_low_and_upp(password),
-            has_dig(password),
-            has_special_char(password),
-            has_not_phone_namber(password),
-            has_not_date(password)
-        ])
-        return score
+    score = sum([
+        has_len_pass(password),
+        has_lower_and_upper(password),
+        has_digital(password),
+        has_special_char(password),
+        has_not_phone_namber(password),
+        has_not_date(password)
+    ])
+    return score
 
 
 if __name__ == '__main__':
     try:
         blacklisted_words = get_blacklist_file(sys.argv[1])
         password = getpass('Enter you password')
-        print('password strength: {}'.format(get_password_strength(password)))
+        if is_in_blacklist(blacklisted_words, password):
+            print('"{}"-password from blacklist'.format(password))
+        else:
+            print('password strength: {}'.format(get_password_strength(password)))
     except IndexError:
         exit('Not found blacklist')
