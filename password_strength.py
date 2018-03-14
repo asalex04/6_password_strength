@@ -3,7 +3,7 @@ import sys
 from getpass import getpass
 
 
-def get_blacklist_file(file_path):
+def get_blacklist_data(file_path):
     with open(file_path) as blacklist:
         return blacklist.read().split('\n')
 
@@ -12,7 +12,7 @@ def is_in_blacklist(blacklisted_words, password):
     return password in blacklisted_words
 
 
-def has_len_pass(password):
+def check_len_pass(password):
     min_len_pass = 6
     max_len_pass = 12
     if len(password) >= max_len_pass:
@@ -27,7 +27,7 @@ def has_lower_and_upper(password):
                   re.search('[a-zа-я]', password))
 
 
-def has_digital(password):
+def has_digits(password):
     return 2*bool(re.search('\d+', password))
 
 
@@ -45,9 +45,9 @@ def has_not_date(password):
 
 def get_password_strength(password):
     score = sum([
-        has_len_pass(password),
+        check_len_pass(password),
         has_lower_and_upper(password),
-        has_digital(password),
+        has_digits(password),
         has_special_char(password),
         has_not_phone_namber(password),
         has_not_date(password)
@@ -57,11 +57,11 @@ def get_password_strength(password):
 
 if __name__ == '__main__':
     try:
-        blacklisted_words = get_blacklist_file(sys.argv[1])
+        blacklisted_words = get_blacklist_data(sys.argv[1])
         password = getpass('Enter you password')
         if is_in_blacklist(blacklisted_words, password):
             print('"{}"-password from blacklist'.format(password))
         else:
             print('password strength: {}'.format(get_password_strength(password)))
-    except IndexError:
+    except (IndexError, FileNotFoundError):
         exit('Not found blacklist')
